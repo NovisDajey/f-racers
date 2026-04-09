@@ -1,0 +1,1431 @@
+﻿R-Tune Vehicle Physics 2.0.0
+Kallisto
+Last Updated: July 2025
+Original Release: June 2023
+
+
+projectkallisto@gmail.com 
+Discord
+  
+
+
+
+Video Tutorials
+
+
+Quick Setup Video                Take recorder Tutorial
+Blender-to-Unreal Vehicle Setup Tutorial        Keyframe Animation Tutorial   
+The 2.0 demo project is available directly on the R-Tune FAB page. Once purchased, press download and the additional files tab with the project will appear. 
+
+
+PLEASE ENSURE THAT THE LATEST VERSION OF THE R-TUNE PLUGIN IS INSTALLED BEFORE OPENING DEMO PROJECTS! IF NODES/FUNCTIONS ARE NOT APPEARING, THIS IS DUE TO USING AN OLDER VERSION OF THE PLUGIN WITHOUT THE NEW CODE!
+1.0 Projects        
+Example Project V1.2.1   Drift Cars (with Engine Sounds Setup)   Air Controls   Trucks                                  
+Hovercrafts   Truck with Trailer   Van
+
+
+Animation Project Files        
+Animation Template (Take Recorder)
+________________
+Other Systems 
+
+V.R.S Vehicle Rigging System                          K2 Aircraft Physics      
+
+
+
+
+
+
+
+
+
+
+V.S.E Vehicle Engine Sounds   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+General
+For the best performance and results please use R-Tune Vehicle Physics with the minimum version of Unreal Engine 5.2. Older versions (5.0, 5.1) are supported but do not perform as well as newer versions.
+Getting Started
+The easiest way to get started quickly is to download the example project (or special demo project for 2.0), choose the vehicle you like the most, and simply swap out the meshes of the wheels and body for your own:
+  
+
+The only requirement for the wheel meshes is that they are aligned and centered at the origin:
+  
+
+The best way to start changing how the vehicle behaves is to play around with the properties and get a feel for what everything does. Every property is fully explained in detail. If you are unsure of what something does, hover over it and the tooltip description will appear:
+  
+
+
+
+Additionally, you can follow this tutorial for setting up a basic simcade vehicle from scratch. Please note that this tutorial uses the old method for showing wheels in-editor. Please use the setup shown below.
+Setting Up Wheels In-Editor (optional)
+Create a static mesh component for each of the suspension components and set it to the same wheel mesh used for the suspension component. Make sure that they are rooted to the suspension component.
+
+
+Setup Video
+
+
+  
+
+Enable ‘Inherit Mesh from Component’ in each suspension component which a child wheel:
+
+
+  
+
+
+
+Please note that if this setup is used, the suspension component cannot have additional components attached to it. These components need to be attached to the root component.
+Take Recorder
+Version 1.3.0 of R-Tune now includes a separate system to handle take recorder animations This fixes all of the issues faced when using take recorder with older versions of the system. To enable this simply toggle ‘Enable Animation Mode’. This mode should only be enabled during animation captures with the take recorder or sequencer. During gameplay it should be disabled.
+  
+
+
+
+Make sure that ‘Reduce Keys’ is disabled in the take recorder settings:
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+Disable all of the wheels in the take recorder outlier. If enabled this can cause problems with the wheel rotations.
+  
+
+
+
+
+
+________________
+
+
+Drivetrains - RWD, FWD, AWD (2.0)
+To setup a drivetrain, enable this in both the vehicle and suspension components:
+Vehicle:
+  
+
+Suspension Component:
+  
+
+This needs to be enabled for every wheel that will be driven. The drivetrain system is not restricted to RWD, AWD, and FWD, The number of wheels set to driven will determine the drivetrain.
+
+
+For the non-driven wheels, simply enable the drivetrain without enabling ‘Driven Wheel’:  
+
+
+Please note that balancing drivetrains by nature is tricky, and while this system tries to make it as easy as possible to interface with this behaviour, it will require time to fine tune. The best way to fine tune the feel is to experiment and try lots of values to find a balance that fits your project.
+
+
+Network Replication 
+Optimal Setup
+This setup should be used for the best results. It is not as smooth as the method shown later, but will provide the best real-world results. In the replication section of the vehicle blueprint set ‘Replicate Movement’ to true; 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In the replication category of RTune Vehicle in the vehicle blueprint, set the replication method to ‘Data Only’ 
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In every suspension component set ‘Component Replicates’ to false.
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In the case of using the example project, ensure that ‘Auto Possess Player’ is set to Disabled:
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Network Prediction 2.0
+R-Tune 2.0 fully supports network prediction. This follows on from the optimal setup. Make sure that your vehicle is using the above setup before enabling this feature. Enable the ‘Network prediction plugin’
+  
+
+These default settings work well:
+  
+If rotation based desyncs are experienced, the ‘Angle Lerp’ can be lowered to 0.05 as start, or some other lower value than the default.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+High Speed Replication
+If your server is able to handle high update rates, this replication setup can be used.
+
+
+  
+
+In order to enable network replication, simply set the replication method to 'Full'. Replication is fully integrated and requires no component setup. Ensure that ‘Replicate Movement’ is set to false in the default replication settings.   
+If this setting is enabled the custom movement will not work. 
+
+
+The replicated movement is not limited to the R-Tune implementation. The vehicle system is designed such that 3rd party plugins like Smooth Sync can also be used and work seamlessly. If a 3rd party or custom movement solution is used the replication method should be set to either ‘Data Only’ or ‘None’.
+
+
+For replication to work correctly ensure that ‘Tick Physics Async’ is enabled in Project Settings -> Physics -> Frame Rate. Using values equal to or slightly less than 0.008333 (1/120) is advised.
+
+
+  
+
+  
+
+Replicated Blueprint Scripting (Advanced)
+When scripting vehicle logic that needs to be replicated the 'Ext Replication Input' functionality can be used so that input is automatically, and correctly replicated. These work the same as 'Set Throttle Input' or 'Set Steering Input', except now they reference a blank variable corresponding to the function that can be used for any behavior. This is optional and not strictly required to be used.
+
+
+  
+
+
+
+The image above illustrates how handbrake input can be set up using float as a boolean.
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Manually setting up an input function to replicate requires calling an event from the input binding. The event should have the replication settings in the image below:
+  Editor Crashes with Multiple Vehicles
+Some of the features and systems in the Chaos physics engine are experimental and have some issues. Spawning more than 3 vehicles in a server can occasionally cause a crash. To solve this disable ‘Auto Wake Rigid Bodies’ found in the RTune Vehicle physics section:
+
+
+  
+
+
+
+Hook up the ‘RTWake Rigid Bodies’ function to all input functions:
+
+
+  
+
+
+
+RTWake Rigid Bodies do not strictly have to be connected to the input functions, they just need to be called somewhere periodic so that it can update the system.
+Handbrake Setup
+The handbrake net strength is set in the main settings of the RTune vehicle:
+
+
+  
+
+
+
+Each suspension component can be set independently to to use the handbrake: 
+
+
+  
+
+
+
+The input setup will be as follows:
+
+
+  
+
+For more drift like behavior, the lateral force of the rear tyres can be decreased when the handbrake is applied to simulate breaking of traction:
+
+
+  
+
+**Setting up Counter-steering (2.0)
+Interior Animation Component (2.0)
+Animating components like the steering wheel, RPM needle and speed needle can be done by using the ‘RTune Interior’ component. No extra setup is required in blueprint. Once added, R-Tune will automatically handle the updates:
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This is a mesh based component with the animation/component type specifiable:
+  
+
+
+
+  
+
+The animation type is used to specify what data will be used to update the component. To control how the component functions the animation properties can be changed:
+* Input Range: The range for the data being used to drive animation(RPM, Speed, Steering). 
+   * E.g for RPM the minimum (X) will be the idle RPM, and the maximum (Y) will be the max rpm. 
+   * For Steering the minimum (X) will be -1, and maximum 1 (Y). 
+   * For Speed the minimum (X) will be 0, and maximum (Y) will be the top speed 
+* Output range: The range that the input will be mapped to.
+* Rotation Axis: How the component rotates (Roll, Pitch, Yaw).
+* Use Smoothing: Whether to increase smoothness of animation. This is at the cost of accuracy and response.
+* Smoothing Speed: How quickly to transition to the next state. 
+* Invert: To reverse the direction of the animation, enable this.
+**Articulated Component (2.0)
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AI (Experimental) (2.0)
+To use AI functionality, first add the ‘RTune AI’ component.
+  
+
+  
+
+The AI system works by following a spline component. The spline component will be a component of an actor. To get started use the ‘BP_Spline’ actor:
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Once the ‘BP_Spline’ actor has been placed in the world this needs to be set in the vehicle. The R-Tune AI vehicle already has this setup, so you can simply select the spine actor in the outliner:
+  
+
+
+
+
+To modify how the vehicle behaves, the PID settings will be changed:
+  
+
+
+
+* Kp: Proportional gain coefficient. This controls how quickly the system responds. Setting this too high can cause instability and overshooting.
+* Kd: Derivative coefficient. This is useful for damping the movement and increasing smoothness.
+* Kd2: Second derivative coefficient. This can be used to damp the system as a whole. This is more useful than 'Kd' for smoothing
+* Ki: Integral gain coefficient. This is useful in helping correct steady state offsets.
+* Max Integral: Maximum buildup for integral accumulation (Ki)
+* Output Max: Maximum steering output. This is effectively a clamp
+* Min Delta Time: This is the minimum delta time that integral and derivative computations will take place.
+
+
+Custom Collision Channel
+In certain cases it may be required that the vehicle wheels ignore specific surfaces like the characters, walls, vertical surfaces, etc. Ignoring these surfaces can be achieved by setting up a custom collision channel. This can be done by changing the “Collision Channel” found in the suspension component:
+  
+
+In the project settings create a new channel set to block:
+  
+
+The suspension component will now have its Collision Channel set to this custom channel:
+  
+
+
+
+In the object settings of the object that should be ignored, set the custom channel (Vehicle) to ignore:
+
+
+  
+
+
+
+
+
+
+
+Setup Modifications
+Center of Mass
+The center of mass of the vehicle’s collision mesh will have an effect on the vehicle’s handling. This means that for blueprints with identical settings, but different meshes for the root component (collision mesh), will have slightly different handling behaviour. This is due to the shape's inertia, and how forces interact with that specific shape. To eliminate this effect there are a few options: 
+
+
+1. Center of Mass Offset: In the core mesh settings, the center of mass can be offset in the X-axis direction (first entry):
+  
+
+For more naturally drifty behaviour the offset should be negative. To correct for naturally drifty behaviour this can be set to a positive value. A good starting value to use is 20, this is based on the size of the mesh so higher or lower values are also valid. The Z-axis (last entry) can also be used to improve stability. If the vehicle has a tendency to roll over this offset can be set to a negative value. If the vehicle is leaning in the steering direction it can be set to a positive value.
+  
+
+The center of mass is the central location of the collision mesh (green outline). This center of mass offset changes its location in this shape.
+
+
+
+
+2. Separate collision and rendering meshes: If there are multiple different vehicles used and the handling characteristics are to be shared, this method should be used:
+  
+
+Another static mesh component (Rendering Mesh) is used with all collision and physics disabled (simulate physics and mass disabled). The collision preset should be set to ‘Custom’ with all collision responses set to ‘Ignore’:
+  
+
+
+
+  
+
+The core mesh uses a static mesh, with collision setup, except the visibility is disabled so that it does not render. This will allow for a different (physics) collision mesh to be used that is independent of the visible rendering mesh.
+
+
+________________
+
+
+FAQ
+Car jumps while still
+If the vehicle seems to be jumping position after stopping, the idle lock stiffness can be decreased. Alternatively, it can be disabled completely:
+
+
+  
+
+Errors when opening project
+Older versions of the plugin will not work with newer demo projects. Please make sure that the latest official version of the plugin is installed. If things are broken - this is the issue.
+Bugs
+Vehicle not moving/stuck in Multiplayer:
+* If the vehicle is not moving, even though input is being registered. Disable the idle lock completely.
+
+
+Vehicle’s rotation desync when replicated:
+* In the project settings set the Angle Lerp to 0.05, or some other low value
+* This is only for the optimal setup with replication set to ‘Data Only’
+
+
+Scaling actor breaks physics:
+* Vehicles cannot be scaled. If vehicles need to be larger, a larger mesh should be used with the actor scale set to 1.
+________________
+Properties
+**Please note - this is out of date for 2.0. These properties and functions have not yet been added.
+RTuneVehicle Properties
+	Property
+	Scope
+	Data Type
+	Description
+	PowertrainType
+	Private
+	EBehaviourType
+	Specifies the powertrain behavior. Arcade: Torque is constant with no gearbox in place. Standard: Full powertrain with variable torque as a function of RPM.
+	EngineTorque
+	Private
+	float
+	In Newton-Meters. This is the maximum torque that the engine will produce. If the standard powertrain is used, the peak value on the curve will be this value.
+	MaxSpeed
+	Private
+	float
+	Arcade maximum speed clamp. In KPH. This is a fast-approximate top speed, the actual top speed will be slightly lower than this value.
+	MaxRPM
+	Private
+	float
+	Maximum RPM. The engine RPM will not exceed this value unless an override is applied during runtime.
+	RPM_Multiplier
+	Private
+	float
+	This can be used to scale RPM. Be very cautious when modifying this as it can cause erratic behaviour, but in some applications be useful. The default value of 1 is perfectly stable and will not have any impact.
+        
+	TorqueImplementation
+	Private
+	ETorqueImplementation
+	How torque is implemented. Either it is a constant value, i.e. acceleration through a gear will not change, or it is a function of RPM.
+	EngineTorqueCurve
+	Private
+	UCurveFloat*
+	This is a normalized torque curve which should be from 0 to 1. The delivered engine torque will be the value at a point on this curve multiplied by the EngineTorque. X axis: RPM, Y axis: Torque multiplier.
+	EngineBrakeCoefficient
+	Private
+	float
+	This affects how quickly the RPM decreases when the throttle is not applied. Higher values result in a quicker decrease. Lower values result in less off-throttle deceleration.
+	TransmissionEfficiency
+	Private
+	float
+	A simple scalar that affects only acceleration at any given gear. Higher values result in a higher efficiency which increases acceleration. This does not affect top speed.
+	ShiftDelay
+	Private
+	float
+	How long do shifts (upshift/downshift) take in seconds.
+	DifferentialRatio
+	Private
+	float
+	Differential Ratio.
+	GearRatios
+	Private
+	TArray<float>
+	Gear Ratios.
+	WheelRadius
+	Private
+	float
+	This is independent from the actual wheel radius in the suspension component. This is used in the wheel torque calculation and is in meters (m).
+	bAutomatic
+	Private
+	bool
+	Specifies if the transmission is automatic.
+	UpshiftRatio
+	Private
+	float
+	Ratio threshold of RPM to MaxRPM for an upshift to take place.
+	DownshiftRatio
+	Private
+	float
+	Ratio threshold of RPM to MaxRPM for a downshift to take place. Gear ratios should be spaced out such that an instance of intersection between an upshift and downshift ratio occurs.
+	bLockShift
+	Private
+	bool
+	This prevents the gearbox from shifting when set to true. This is useful under certain conditions
+	BrakeForce
+	Private
+	float
+	Brake force in Newtons. If UseBrakesAsReverse is used, then this will be the force used to reverse.
+	bUseBrakeAsReverse
+	Private
+	bool
+	Default for arcade powertrain.
+	MaxSpeedInReverse
+	Private
+	float
+	This is the maximum speed (KPH) that can be achieved in reverse if UsedBrakesAsReverse is used. If not, the maximum speed in reverse will be determined by the gear ratio set.
+	DriftTorque
+	Protected
+	float
+	This is an assistance/helper torque (in Unreal Torque Units) that is tied to steering input and can be used to increase the rotation rate of the vehicle
+	SteeringInputClamp
+	Protected
+	ESpeedClamp
+	Clamp the steering input as a function of speed. I.E. at higher speeds the maximum steering input will be lower, which is how vehicles generally behave.
+        
+	ConstantSteeringClamp
+	Protected
+	float
+	Clamp the max steering input across all speeds.
+	LinearSteeringInputClamp
+	Protected
+	FRangedClamp
+	 Linear mapping: 1-to-1 input to speed decrease. The input range is the speed range Input.X = min speed, Input.Y = max speed. The output range is the maximum steering input.
+        
+	CurveSteeringInputClamp
+	Protected
+	UCurveFloat*
+	Steering input decreases as a function of this curve. The x axis is speed, the y axis is the maximum steering value.
+        
+	bUseSensitivityClamp
+	Protected
+	bool
+	Limit the steering sensitivity as a function of speed. I.E at higher speeds the steering response will be slower.
+        
+	SteeringSensitivity
+	Protected
+	float
+	Constant sensitivity. Sensitivity will not vary with speed.
+	SteeringSensitivityClamp
+	Protected
+	FRangedClamp 
+	Linear mapping. Input range is speed, output range is sensitivity.
+	HandbrakeStrength
+	Protected
+	float
+	This the handbrake force used to slow down the vehicle.
+	DynamicPitchMomentMultiplier
+	Protected
+	float
+	This affects the pitch moment. I.E increasing this value increases the amount the vehicle leans under acceleration.
+	DynamicBrakeMomentMultiplier
+	Protected
+	float
+	This affects the pitch moment under braking. I.E increasing this value increases the amount the vehicle leans under braking. This can be problematic in certain cases - caution is advised.        
+	UseSteerLean
+	Protected
+	bool
+	This allows the vehicle to lean while steering like a bike. 
+	SteerLeanCoefficient
+	Protected
+	float
+	This controls the force applied that causes the vehicle to lean.
+	LeanSteerMinThreshold
+	Protected
+	float
+	This is the lower bound angle mapping for lean steering. A lower value will result in leaning with less steering input.
+	LeanSteerMaxThreshold
+	Protected
+	float
+	This is the upper bound angle mapping for lean steering. A higher value will result in leaning more at larger steering inputs. Too high a value can cause tipping over
+	CoefficientOfDrag
+	Protected
+	float
+	This is a dimensionless scalar. Higher values result in more drag. Generally this value ranges from 0.25-0.4 for most road cars.
+
+
+	CrossSectionArea
+	Protected
+	float
+	Frontal cross sectional area. In meters squared. This is the area that drag acts on. Higher values will result in more drag.
+	AirDensity 
+	Protected
+	float
+	This is the atmosphere air density used in drag force calculations. Default value is the air density at sea level. In kg/m^3.
+	 PitchStrength
+	Protected
+	float
+	How much the vehicle will rotate about the pitch axis. Higher values will result in quicker rotation about this axis.
+	YawStrength
+	Protected
+	float
+	How much the vehicle will rotate about the yaw axis. Higher values will result in quicker rotation about this axis.
+	 RollStrength 
+	Protected
+	float
+	How much the vehicle will rotate about the roll axis. Higher values will result in quicker rotation about this axis.
+	InAirWheelCount
+	Protected
+	int32
+	This controls the in air condition where forces and torques cannot be applied. This variable controls how many wheels have to be off the ground for the vehicle to be considered airborne. When the vehicle is airborne forces and torques are no longer applied.
+	bAntiGravityEnabled
+	Protected
+	bool
+	Enabling this activates the Anti Gravity System.
+	GravityStrength 
+	Protected
+	float
+	Actual magnitude of gravity.
+	AntiGravityZStrength 
+	Protected
+	float
+	How much to scale the anti-gravity on the Z axis. Increasing this value will increase the anti gravity surface suction. A value of 1 - 2 generally works well. This can be increased higher.
+	 AntiGravityXStrength
+	Protected
+	float
+	How much to scale the anti-gravity on the planar X axis. A value greater than 1 will prevent rolling backwards on inclines. Set this value to zero to allow for forwards and backwards rolling.
+	AntiGravityYStrength
+	Protected
+	float
+	 How much to scale the anti-gravity on the planar Y axis. A value greater than 1 will prevent sideways slipping on inclines. Set this value to zero to allow for sideways slipping.
+	 AntiGravityOffContactThreshold 
+	Protected
+	float
+	This is the time, in seconds, to keep the Anti Gravity system active when the wheels have lost contact with the surface.
+	AddedMass
+	Protected
+	float
+	The added mass used for the anti gravity simulation to maintain equilibrium. Using multiple components that have masses will add to this simulation. It can be used if there is a mass change during runtime. This is a highly efficient mass change implementation and will not impact performance.
+	bUseIdleLock
+	Protected
+	bool
+	This system is used to hold a vehicle in place when stationary or travelling very slowly after a certain amount of time and prevent micro slipping. 
+	 IdleLockTime
+	Protected
+	float
+	How long to wait (in seconds) to lock the vehicle in place.
+	bIsIdleLocked
+	Protected
+	bool
+	This is effectively an override variable that can be called during runtime to disable the idle lock. This may be useful for edge cases that require more precise control of this system.
+	IdleLockSpeedThreshold 
+	Protected
+	float
+	Speed at which to begin transitioning to idle locked state.
+	 IdleLockStiffness 
+	Protected
+	float
+	This is the force used on inclines to prevent slipping and micro slipping. If the force is too high it may cause an impulse and move the vehicle out of the idle locked state.
+	ReplicationMethod
+	Protected
+	EReplicationType
+	This is how replication is implemented. 
+Full - Complete replication
+Data Only - Movement is not replicated. Only data is replicated. This is useful if a 3rd party movement replication system is used (like 'Smooth Sync')
+None - No data or movement is replicated. This is useful if you are implementing a custom replication system or do not need replication.
+	bUseServerFastSync
+	Protected
+	bool
+	This periodically forces the server to sync transform data to the client for absolute synchronization. This is optional and not needed in most cases. However, it can be beneficial to force a sync to ensure absolute consistency.
+	 bAutoWakeRigidBodies
+	Protected
+	bool
+	This controls whether to automatically wake rigid body components. Disabling this option can resolve issues with having lots of replicated vehicles.If disabled use the function 'RTWakeRigidBodies' to resume wake state
+
+
+	ExtReplicationInput_1
+ExtReplicationInput_2
+ExtReplicationInput_3
+ExtReplicationInput_4
+ExtReplicationInput_5
+ExtReplicationInput_6
+	Public
+	float 
+	These are replication inputs used when scripting in the Blueprint Async Tick function. They can be used for drift inputs, air control, etc, instead of requiring blueprint replication setup. 
+	bEnableAnimationMode
+	Protected
+	bool
+	Enable the animation system required for take recorder animations. Please do not enable this for gameplay, and only enable it when creating animations.
+	 AnimationGlobalWheelSpeedMultiplier
+	Protected
+	float
+	This is a speed multiplier that will be applied to all wheels. When using animation mode the suspension component multiplier will no longer be active.
+	
+
+________________
+
+
+
+
+SuspensionComponent Properties
+	Property
+	Scope
+	Type
+	Description
+	Stiffness
+	Protected
+	float
+	Stiffness of the suspension in Newtons per meter N/m. A higher stiffness will result in a higher resting length and springier behavior. This can be thought of as the resistance to a deforming force, such as weight. It should be noted that the heavier the mass, the higher the stiffness needed to support that weight.
+	Damping
+	Protected
+	float
+	This is a dimensionless coefficient and affects the rate at which the suspension spring reaches static equilibrium. A higher damping value will result in less bouncy behavior.
+	ExtensionLength
+	Protected
+	float
+	This is the maximum length that the spring will extend to from it's starting location. Units are in centimeters (cm).
+	bOverrideContact
+	Protected
+	bool
+	Allows contact forces to be applied, even if no contact is present. This should almost always be left off and is an unsafe option. 
+	bIsSteeringWheel
+	Protected
+	bool
+	Whether or not this wheel will have steering input applied to.
+	CollisionChannel
+	Protected
+	TEnumAsByte<ECollisionChannel> 
+	The trace channel of the suspension components. Useful to make custom channels preventing unwanted collisions.
+	bAllowFullRotation
+	Protected
+	bool 
+	Allows the suspension component to be rotated about any axis. Do not enable if rotation glitches are observed, and rotate the wheel mesh component instead.
+	bZeroForceComponent (Upcoming Update)
+	Protected
+	bool 
+	Prevents the suspension component from applying any forces. This is only useful in certain specific cases and should generally be off. 
+	bInheritMeshFromComponent
+	Protected
+	bool
+	This allows a wheel mesh component to be used in both editor and runtime.
+	WheelMesh
+	Protected
+	UStaticMesh*
+	Rendered wheel mesh.
+	HideWheelMesh
+	Protected
+	bool
+	Sets the rendering of the wheel static mesh to invisible.  This is only called once, in Begin Play.
+	bRotateWheel
+	Protected
+	bool
+	This is a purely visual variable. If the wheel is facing in the wrong direction (usually the left or right set of wheels), set this to true.
+	WheelZOffset
+	Protected
+	float
+	This can be used to offset the wheel location in the Z Axis. This has no effect on physics.
+	 bHandbrakeWheel
+	Protected
+	bool
+	Whether the wheel will be affected by the handbrake.
+	HandbrakeWheelType
+	Protected
+	EHandbrakeWheelType
+	Which axle will the handbrake affect. Since vehicles can have any number of wheels, this must be specified. The axel specified will affect the rotation (physics) behaviour.
+	LateralForceScalar
+	Protected
+	float
+	This is a dimensionless scalar. It affects how much lateral force is produced, a higher value will result in more grip. It is imperative that these values are balanced between all tyres (in SuspensionComponent) of the vehicle.
+	MaxLateralForce
+	Protected
+	float
+	This is the maximum force that a tyre will produce in Newtons (N).
+	LowSpeedLateralForceScalar
+	Protected
+	float
+	This behaves exactly the same as the LateralForceScalar, however it is used only for very low speeds for stability. To prevent low speed slipping this value should generally be larger than the LateralForceScalar.
+	ContactForceOffsetLocation
+	Protected
+	float
+	This is the distance offset of the force application point to the center of mass. Changing this value affects how much the vehicle rolls. Negative values are also valid and may even be necessary to correct for the desired roll amount. It can be seen as somewhat of an anti-roll bar scaling factor.
+	WheelAngularVelocityMultiplier
+	Protected
+	float
+	This is simply a scalar for wheel velocity. E.g during a burnout or drifting this can be increased in blueprints to reflect that state.
+	ResistanceForceCoefficient
+	Protected
+	float
+	This can be used to oppose motion in the longitudinal direction applied at the tyre contact point.
+	MaxResistanceForce
+	Protected
+	float
+	This is the maximum resistance force in Newtons [N] that can be applied. If the Resistance Force Coefficient is zero, this property will take no effect.
+	MaxSteeringAngle
+	Protected
+	float
+	This is the maximum angle of wheels set to steer. This affects the lateral force direction, and consequently the vehicle behavior. Lateral force is applied perpendicular to the forward direction of the wheel.
+	SteeringSpeed
+	Protected
+	float
+	No description provided.
+	SteeringReleaseSpeed
+	Protected
+	float
+	This is how quickly the steer wheel rotates to zero degrees.
+	bHybridRaycast
+	Protected
+	bool
+	This uses spheretrace and switches to a line raycast when the spheretrace becomes unsuitable. If this is set to false, a pure line raycast will be used which may be more suitable for arcade behavior.
+	Radius
+	Protected
+	float
+	The radius used for the sphere trace. The radius will automatically be set by the wheelMesh. If no mesh is specified then this value will be used. This value is in meters (m).
+	ImpactNormalTolerance
+	Protected
+	float
+	This is one of the conditions for switching to a line raycast. This is the normalized impact normal threshold, values closer to 1 are of a higher tolerance which will result in the trace being predominantly a sphere trace.
+	ImpactHeightTolerance
+	Protected
+	float
+	In centimeters (cm). This is the second of the conditions for switching to a line raycast. This is the maximum height of the wheel that is valid for a sphere trace collision. Lower this value to limit the sphere contact region closer to the base of the wheel.
+	bUseIdleLock
+	Protected
+	bool
+	Whether or not to lock to wheels animation when completely stationary to prevent micro rotations.
+	IdleLockTime
+	Protected
+	float
+	How long after stationary to lock the wheels. In seconds (s).
+	bHandbrakeWheel
+	Protected
+	bool
+	Whether the wheel will be affected by the handbrake
+	HandbrakeWheelType
+	Protected
+	EHandbrakeWheelType
+	Which axle will the handbrake affect. Since vehicles can have any number of wheels, this must be specified. The axel specified will affect the rotation (physics) behavior.
+	BurnoutRotation
+	Protected
+	float
+	This adds rotation to the wheel as a constant. This is useful for burnouts at zero speed.
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Functions
+
+
+RTuneVehicle Functions
+	Function Name
+	Scope
+	Type
+	Description
+	InitializeAntiGravity
+	Public
+	void
+	Initializes the anti gravity system. This is called once in Begin Play.
+	InitializeLeanSteer
+	Public
+	void
+	Initializes the lean steer system. This is called once in Begin Play.
+	SetThrottleInput
+	Public
+	void
+	Set the throttle input with a given float value.
+	SetBrakeInput
+	Public
+	void
+	Set the brake input with a given float value.
+	SetSteeringInput
+	Public
+	void
+	Set the steering input with a given float value.
+	Jump
+	Public
+	void
+	Makes the vehicle jump with a given amount. Mass-like values generally give good performance.
+	SetAirPitchInput
+	Public
+	void
+	Set the pitch input for air controls.
+	 SetAirYawInput
+	Public
+	void
+	Set the yaw input for air controls.
+	SetAirRollInput
+	Public
+	void
+	Set the roll input for air controls.
+	SetEngineTorque
+	Public
+	void
+	Set the engine's torque with a given float value.
+	SetCurrentGearRatio
+	Public
+	void
+	Set the current gear ratio with a given float value.
+	SetDifferentialRatio
+	Public
+	void
+	Set the differential ratio with a given float value.
+	SetPhysicsWheelRadius
+	Public
+	void
+	Set the physics wheel radius with a given float value.
+	SetExternalResistanceForce
+	Public
+	void
+	Set the external resistance force with a given float value.
+	SetBrakesEnabled
+	Public
+	void
+	Enable or disable brakes based on the Boolean value passed.
+	SetEngineTorqueEnabled
+	Public
+	void
+	Enable or disable engine torque based on the Boolean value and float value passed.
+	SetInAir
+	Public
+	void
+	Set the vehicle's airborne status with a given Boolean value.
+	Upshift
+	Public
+	void
+	Shift up the gears.
+	Downshift
+	Public
+	void
+	Shift down the gears.
+	OverrideRPM
+	Public
+	void
+	Override the current RPM with a given float value.
+	OverrideAntiGravityState
+	Public
+	void
+	This can be used to force enable/disable the anti gravity system. The anti gravity system needs to be initialized for this to be used.
+	RTWakeRigidBodies
+	Public
+	void
+	Resume physics wake state
+	SetControllable
+	Public
+	void
+	Allows the input to be enabled/disabled. Useful when unpossessing the vehicle to prevent continual input feed. This function is replicated. 
+	GetSpeedKPH
+	Public
+	float
+	Returns the speed of the vehicle in kilometers per hour.
+	GetLinearVelocity
+	Public
+	float
+	Returns the local velocity in the forward direction of the vehicle in meters per second.
+	GetVelocityVector
+	Public
+	FVector
+	Returns the local velocity vector in meters per second.
+	GetThrottleInput
+	Public
+	float
+	Returns the current throttle input.
+	GetBrakesInput
+	Public
+	float
+	Returns the current brakes input.
+	GetSteeringInput
+	Public
+	float
+	Returns the current steering input.
+	GetEngineTorque
+	Public
+	float
+	Returns the peak engine torque.
+	GetEngineCurrentTorque
+	Public
+	float
+	Returns the current engine torque.
+	GetCurrentGearRatio
+	Public
+	float
+	Returns the current gear ratio.
+	GetDifferentialRatio
+	Public
+	float
+	Returns the differential ratio.
+	GetPhysicsWheelRadius
+	Public
+	float
+	Returns the wheel radius of the drivetrain.
+	GetExternalResistanceForce
+	Public
+	float
+	Returns the external resistance force.
+	GetRPM
+	Public
+	float
+	Returns the current RPM.
+	IsGearboxUpshifting
+	Public
+	bool
+	Returns whether or not the gearbox is upshifting.
+	IsGearboxDownshifting
+	Public
+	bool
+	Returns whether the gearbox is downshifting.
+	GetCurrentGear
+	Public
+	int
+	Returns the current gear index.
+	GetSideSlipAngle
+	Public
+	float
+	Returns the angle between the vehicle's forward direction and velocity angle, in degrees.
+	RTWakeRigidBodies
+	Public
+	void
+	Resume physics wake state.
+	GetSideSlipAngle
+	Public
+	float
+	Returns the angle between the vehicle's forward direction and velocity angle, in degrees. This is calculated on the physics (async) thread and should be used only in Event Async Tick.
+	GetSideSlipAngleGT
+	Public
+	float
+	Returns the angle between the vehicle's forward direction and velocity angle, in degrees. This is calculated on the game thread and should be used only in Event Tick.
+	GetHandbrakeStrength
+	Public
+	float
+	Returns the current strength value of the handbrake.
+	GetPrimitiveRoot
+	Public
+	UPrimitiveComponent*
+	Returns the vehicle’s primitive root component
+	IsAntiGravityActive
+	Public
+	bool
+	Returns the state of the anti gravity system.
+	GetLongitudinalG
+	Public
+	float
+	Returns the G acceleration (m/s^2) in the forward direction.
+	GetLateralG
+	Public
+	float
+	Returns the G acceleration (m/s^2) in the sideways direction.
+	GetVerticalG
+	Public
+	float
+	Returns the G acceleration (m/s^2) in the upwards direction.
+	
+
+
+
+SuspensionComponent Functions
+	Name
+	Scope
+	Type
+	Description
+	UpdatePhysics
+	Public
+	void
+	Core update function. This will automatically be called if used inside the RTuneVehicle pawn, however, if this is used inside a pawn not inheriting from this class it needs to be called inside a tick function - preferably an Async based tick.
+	GetWheelMeshComponent
+	Public
+	UStaticMeshComponent*
+	Returns the static mesh component, not to be confused with a pure static mesh. If the wheel's current static mesh is required, use 'GetStaticMesh' on this return.
+	SetStiffness
+	Public
+	void
+	Set the stiffness of the suspension.
+	SetDamping
+	Public
+	void
+	Set the stiffness of the suspension.
+	SetExtensionLength
+	Public
+	void
+	Set the stiffness of the suspension.
+	RenderWheelMesh
+	Public
+	void
+	To render the wheels in the editor/viewport/blueprint editor, call this function inside the construction script.
+	IsInAir
+	Public
+	bool
+	Returns if the suspension component, or more specifically the wheel, is in contact with the surface.
+	GetCurrentLength
+	Public
+	float
+	Returns the current length of the suspension. This is the difference between the maximum extension length and the compression distance due to the total weight.
+	GetHitResult
+	Public
+	FHitResult
+	Returns the hit result data from the raycast. This includes the physical material. This can be used to obtain the type of surface the tyre is on.
+	GetCompression
+	Public
+	float
+	Returns how much compression the spring is undergoing. This is a normalized value between 0 and 1.
+	IsHandbrakeWheel
+	Public
+	bool
+	Returns whether the wheel affects the handbrake.
+	RTWakeRigidBodies
+	Public
+	void
+	Resume physics wake state.
+	GetSteeringRotation
+	Public
+	float
+	Returns the steering rotation amount in degrees.
+	GetWheelRelativeOffset
+	Public
+	float
+	Returns the relative offset in the Z axis used to locate the wheel.
+	GetWheelLocalRotation
+	Public
+	FRotator
+	Returns the wheel local rotation used for animating the wheel. Units are Radians per second.
+	RecalculateWheelRadius
+	Public 
+	void
+	This function recalculates the wheel radius. This is useful when a different sized wheel mesh is used during runtime.
+	SetWheelScale
+	Public
+	void
+	Sets the scale of the suspension wheel mesh component.
+	SetNewPhysicsBody
+	Public
+	void
+	Allows for a different physics body to be used when applying forces.
+	
+
+________________
+
+
+Release Notes:
+1.0.1 5.2 Update. Minor fixes.
+
+
+1.0.2 Minor fixes
+
+
+1.0.3 Minor fixes and performance increases
+
+
+1.1.0 Release Version. Network Replication
+
+
+1.1.2 
+   * Air density property exposed. 
+   * ‘Get Physics Transform’ function added to obtain async physics transform
+
+
+1.1.3
+   * Added collision channel options in suspension component
+   * Network replication fixes and improvements
+
+
+1.1.4 
+   * Added handbrake functionality
+   * Wake rigid bodies wake state manual and automatic options 
+   * Set wheel mesh size
+
+
+1.1.5 
+   * Added blueprint accessors for suspension core
+
+
+1.1.6
+   * Added gettors for wheel animation
+   * GetSteeringRotation()
+   * GetWheelRelativeOffset()
+   * GetWheelLocalRotation()
+1.1.7
+   * Added functionality to make burnouts more easily:
+   * GetSideSlipAngle (RTuneVehicle Function) - Returns the angle between the vehicle's forward direction and velocity angle, in degrees.
+   * RPM_Multiplier (RTuneVehicle Property) - This can be used to scale RPM. Be very cautious when modifying this as it can cause erratic behavior, but in some applications be useful. The default value of 1 is perfectly stable and will not have any impact.
+   * Burnout Rotation - This adds rotation to the wheel as a constant. This is useful for burnout at zero speed.
+
+
+1.1.8
+   * Added air control functionality for airborne control:
+   * Set Air Pitch Input (RTuneVehicle Function)
+   * Set Air Roll Input (RTuneVehicle Function)
+   * Set Air Yaw Input (RTuneVehicle Function)
+   * Added functionality for more detailed surface interactions
+   * Resistance Force (SuspensionComponent Property) - This can be used to oppose motion in the longitudinal direction applied at the tyre contact point. 
+   * MaxResistanceForce (SuspensionComponent Property) - This is the maximum resistance force in Newtons [N] that can be applied. If the Resistance Force Coefficient is zero, this property will take no effect. 
+
+
+1.1.9
+   * Small fixes
+
+
+1.2.0
+   * Anti Gravity Functionality
+
+
+1.2.1
+   * Updated method for using wheels in-editor
+   * Added functionality to get G-acceleration
+   * GetLongitudinalG
+   * GetLateralG
+   * GetVerticalG
+
+
+1.3.0 (15/12/2024)
+   * Major animation update - Internal animation system redone completely for significant take recorder performance and stability improvements. Enabling this system can be found in the Take Recorder section.
+
+
+1.3.1 (20/12/2024)
+   * Allow suspension components to be rotated about any axis - enable ‘Allow Full Rotation’ in the core settings: 
+  
+
+This is useful especially for the steering section of a bike.
+   * Added ‘Get Side Slip Angle GT’ to return the vehicle's side slip angle calculated on the game thread. This should be used in Event Tick instead of ‘Get Side Slip Angle’ which is calculated on the physics (async) thread.
+
+
+1.3.2 (11/01/2025) [Pending Approval]
+   * All Idle lock properties have been exposed to blueprint
+   * Functionality and performance updates have been made to the internal animation system for take recorder
+   * C++ properties changed to protected from private to allow for easier C++ use
+   * ‘Set Controllable’ function allows for input to be enabled and disabled directly. This is useful when unpossessing vehicles to prevent continual movement. E.g throttle being applied even after the vehicle has been unpossessed.
+   * New function in suspension component that allows a custom physics body to be specified. This is useful for truck and trailer setups when using the suspension component for the trailer:
+
+
+  
+
+1.3.3 (07/02/2025)
+   * Set Gear function added that allows a specific gear to be selected.
+   * Patches to replication system.
+
+
+1.3.4 (15/02/2025)
+   * New ‘Static Vehicle Wheel’ component added for better movement on truck-trailer setups.
+
+
+1.3.5 (06/04/2025)
+   * Bike lean steer integrated into the core physics simulation.
+
+
+1.3.6 (12/05/2025)
+   * Custom animation system fully implemented
+
+
+2.0.0 (03/07/2025)
+   * PID based spline following AI
+   * New demo project with all new vehicles with every vehicle from previous projects improved and polished
+   * Full network prediction support for production grade multiplayer
+   * Speed based automatic gearbox. RPM or speed can be used to determine when the vehicle upshifts and downshifts
+   * Fully modular drivetrains functionality for RWD, AWD, FWD, or any other drive setup (6WD, 8WD, etc)
+   * New Interior Component for animating interior functions (RPM, speed, and steering wheel)
+   * New Articulated Component for forklift arms
+   * Bike stability can now be controlled and modified during runtime to allow for easier/more difficult tipping over and general stability control
+   * Improved drift functionality for smoother drifting and counter steering
+   * Updated physics for better Kart movement
+   * Interior animation components for steering wheel, rpm needle and speed needle. Drag and drop with parametric control.
+   * Improved surface performance in 2.0 truck demo
